@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+__author__ = "Marius Wodtke" 
+__email__ = "marius.wodtke@gmail.com"
+
 import sys
 import logging
 
@@ -47,8 +50,10 @@ class Perceptron(Classifier):
         # around 0 and 0.1
         self.weight = np.random.rand(self.trainingSet.input.shape[1])/10
 
+
     def train(self, verbose=True):
         """Train the perceptron with the perceptron learning algorithm.
+	
 
         Parameters
         ----------
@@ -58,7 +63,17 @@ class Perceptron(Classifier):
 
         # Here you have to implement the Perceptron Learning Algorithm
         # to change the weights of the Perceptron
-        pass
+	for i in range(self.epochs) :
+		for j in range(len(self.trainingSet.input)) :
+			y = int(np.sign(np.sum(np.multiply(self.trainingSet.input[i], self.weight))))
+
+			if verbose: print y, self.trainingSet.label[i], self.weight[100]
+
+			if (y < self.trainingSet.label[i]): self.weight += self.learningRate * self.trainingSet.input[i]
+
+			if (y > self.trainingSet.label[i]-1): self.weight -= self.learningRate * self.trainingSet.input[i]
+
+    pass
 
     def classify(self, testInstance):
         """Classify a single instance.
@@ -75,7 +90,10 @@ class Perceptron(Classifier):
         # Here you have to implement the classification for one instance,
         # i.e., return True if the testInstance is recognized as a 7,
         # False otherwise
-        pass
+	y = int(np.sign(np.sum(np.multiply(testInstance, self.weight))))
+	b = (y >= 0)
+	#print y, b
+        return b
 
     def evaluate(self, test=None):
         """Evaluate a whole dataset.
