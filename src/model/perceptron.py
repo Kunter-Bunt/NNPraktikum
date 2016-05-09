@@ -63,14 +63,14 @@ class Perceptron(Classifier):
 
         # Here you have to implement the Perceptron Learning Algorithm
         # to change the weights of the Perceptron
-	for i in range(self.epochs) :
-		for j in range(len(self.trainingSet.input)) :
+	for epoch in range(self.epochs) :
+		for trainingInstance in range(len(self.trainingSet.input)) :
 
-			y = self.fire(self.trainingSet.input[j]);
-			error = self.trainingSet.label[j] - y
-			if (error): self.weight += error * self.learningRate * self.trainingSet.input[j]
+			y = self.fire(self.trainingSet.input[trainingInstance]);
+			error = self.trainingSet.label[trainingInstance] - y
+			if (error): self.weight += error * self.learningRate * self.trainingSet.input[trainingInstance]
 			
-			if verbose: print y, self.trainingSet.label[j]
+			if verbose: print y, self.trainingSet.label[trainingInstance]
 
 
     pass
