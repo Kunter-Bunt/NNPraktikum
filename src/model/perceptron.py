@@ -65,13 +65,13 @@ class Perceptron(Classifier):
         # to change the weights of the Perceptron
 	for i in range(self.epochs) :
 		for j in range(len(self.trainingSet.input)) :
-			y = int(np.sign(np.sum(np.multiply(self.trainingSet.input[i], self.weight))))
 
-			if verbose: print y, self.trainingSet.label[i], self.weight[100]
+			y = self.fire(self.trainingSet.input[j]);
+			error = self.trainingSet.label[j] - y
+			if (error): self.weight += error * self.learningRate * self.trainingSet.input[j]
+			
+			if verbose: print y, self.trainingSet.label[j]
 
-			if (y < self.trainingSet.label[i]): self.weight += self.learningRate * self.trainingSet.input[i]
-
-			if (y > self.trainingSet.label[i]-1): self.weight -= self.learningRate * self.trainingSet.input[i]
 
     pass
 
@@ -90,8 +90,9 @@ class Perceptron(Classifier):
         # Here you have to implement the classification for one instance,
         # i.e., return True if the testInstance is recognized as a 7,
         # False otherwise
-	y = int(np.sign(np.sum(np.multiply(testInstance, self.weight))))
-	b = (y >= 0)
+	#y = int(np.sign(np.sum(np.multiply(testInstance, self.weight))))
+	y = self.fire(testInstance);
+	b = (y >= 0.5)
 	#print y, b
         return b
 
