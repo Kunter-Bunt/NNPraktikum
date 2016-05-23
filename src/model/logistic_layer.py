@@ -53,7 +53,7 @@ class LogisticLayer():
 
         # You can have better initialization here
         if weights is None:
-            self.weight = np.random.rand(n_in, n_out)/10
+            self.weights = np.random.rand(n_in+1, n_out)/10
         else:
             self.weights = weights
 
@@ -79,6 +79,10 @@ class LogisticLayer():
         """
 
         # Here you have to implement the forward pass
+	self.inp[0] = 1
+	self.inp[1:, 0] = inp
+        self.outp = self._fire(self.inp)
+	#print self.outp
         pass
 
     def computeDerivative(self, nextDerivatives, nextWeights):
@@ -97,17 +101,24 @@ class LogisticLayer():
         deltas: ndarray
             a numpy array containing the partial derivatives on this layer
         """
+	
 
         # Here the implementation of partial derivative calculation
+	if self.is_classifier_layer: 
+		#delta(w)=(t-o)*o(1-o)
+		self.deltas = (nextDerivatives - self.outp) * self.outp * (1 - self.outp)
+	#else:
+		#to be implemented in future assignments
         pass
 
-    def updateWeights(self):
+    def updateWeights(self, learningRate):
         """
         Update the weights of the layer
         """
 
         # Here the implementation of weight updating mechanism
+	self.weights += learningRate * self.deltas * self.inp
         pass
 
     def _fire(self, inp):
-        return Activation.sigmoid(np.dot(np.array(inp), self.weight))
+        return Activation.sigmoid(np.dot(np.array(inp).T, self.weights))

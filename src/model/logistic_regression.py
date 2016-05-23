@@ -7,6 +7,7 @@ import numpy as np
 
 from util.activation_functions import Activation
 from model.classifier import Classifier
+from model.logistic_layer import LogisticLayer
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.DEBUG,
@@ -43,6 +44,7 @@ class LogisticRegression(Classifier):
         self.trainingSet = train
         self.validationSet = valid
         self.testSet = test
+	self.logisticlayer = LogisticLayer(len(self.trainingSet.input[1]), 1, is_classifier_layer=True)
 
     def train(self, verbose=True):
         """Train the Logistic Regression.
@@ -52,9 +54,13 @@ class LogisticRegression(Classifier):
         verbose : boolean
             Print logging messages with validation accuracy if verbose is True.
         """
-
         # Here you have to implement training method "epochs" times
         # Please using LogisticLayer class
+	for epoch in range(self.epochs):	
+		for img, label in zip(self.trainingSet.input, self.trainingSet.label):
+			self.classify(img)
+			self.logisticlayer.computeDerivative(label, self.logisticlayer.weights)
+			self.logisticlayer.updateWeights(self.learningRate)
         pass
 
     def classify(self, testInstance):
@@ -71,7 +77,12 @@ class LogisticRegression(Classifier):
         """
 
         # Here you have to implement classification method given an instance
-        pass
+	self.logisticlayer.forward(testInstance)
+	#print self.logisticlayer.outp
+	if self.logisticlayer.outp >= 0.5:
+        	return True
+	else:
+		return False
 
     def evaluate(self, test=None):
         """Evaluate a whole dataset.
