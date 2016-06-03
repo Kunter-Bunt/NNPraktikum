@@ -4,8 +4,9 @@ import sys
 import logging
 
 import numpy as np
+from sklearn.metrics import accuracy_score
 
-from util.activation_functions import Activation
+# from util.activation_functions import Activation
 from model.classifier import Classifier
 from model.logistic_layer import LogisticLayer
 
@@ -23,28 +24,43 @@ class LogisticRegression(Classifier):
     train : list
     valid : list
     test : list
-    learningRate : float
+    learning_rate : float
     epochs : positive int
 
     Attributes
     ----------
-    trainingSet : list
-    validationSet : list
-    testSet : list
-    weight : list
-    learningRate : float
+    training_set : list
+    validation_set : list
+    test_set : list
+    learning_rate : float
     epochs : positive int
+    performances: array of floats
     """
 
-    def __init__(self, train, valid, test, learningRate=0.01, epochs=50):
+    def __init__(self, train, valid, test, learning_rate=0.01, epochs=50):
 
-        self.learningRate = learningRate
+        self.learning_rate = learning_rate
         self.epochs = epochs
 
-        self.trainingSet = train
-        self.validationSet = valid
-        self.testSet = test
-	self.logisticlayer = LogisticLayer(len(self.trainingSet.input[1]), 1, is_classifier_layer=True)
+
+        self.training_set = train
+        self.validation_set = valid
+        self.test_set = test
+
+        # Record the performance of each epoch for later usages
+        # e.g. plotting, reporting..
+        self.performances = []
+
+        # Use a logistic layer as one-neuron classification (output) layer
+        self.layer = LogisticLayer(train.input.shape[1], 1,
+                                   is_classifier_layer=True)
+
+        # add bias values ("1"s) at the beginning of all data sets
+        self.training_set.input = np.insert(self.training_set.input, 0, 1,
+                                            axis=1)
+        self.validation_set.input = np.insert(self.validation_set.input, 0, 1,
+                                              axis=1)
+        self.test_set.input = np.insert(self.test_set.input, 0, 1, axis=1)
 
     def train(self, verbose=True):
         """Train the Logistic Regression.
@@ -54,21 +70,54 @@ class LogisticRegression(Classifier):
         verbose : boolean
             Print logging messages with validation accuracy if verbose is True.
         """
-        # Here you have to implement training method "epochs" times
-        # Please using LogisticLayer class
-	for epoch in range(self.epochs):	
-		for img, label in zip(self.trainingSet.input, self.trainingSet.label):
-			self.classify(img)
-			self.logisticlayer.computeDerivative(label, self.logisticlayer.weights)
-			self.logisticlayer.updateWeights(self.learningRate)
-        pass
 
-    def classify(self, testInstance):
+        # Run the training "epochs" times, print out the logs
+        for epoch in range(self.epochs):
+            if verbose:
+                print("Training epoch {0}/{1}.."
+                      .format(epoch + 1, self.epochs))
+
+            self._train_one_epoch()
+
+            if verbose:
+                accuracy = accuracy_score(self.validation_set.label,
+                                          self.evaluate(self.validation_set))
+                # Record the performance of each epoch for later usages
+                # e.g. plotting, reporting..
+                self.performances.append(accuracy)
+                print("Accuracy on validation: {0:.2f}%"
+                      .format(accuracy * 100))
+                print("-----------------------------")
+
+    def _train_one_epoch(self):
+        """
+        Train one epoch, seeing all input instances
+        """
+
+        for img, label in zip(self.training_set.input,
+                              self.training_set.label):
+
+            # Use LogisticLayer to do the job
+            # Feed it with inputs
+
+            # Do a forward pass to calculate the output and the error
+            self.layer.forward(img)
+
+            # Compute the derivatives w.r.t to the error
+            # Please note the treatment of nextDerivatives and nextWeights
+            # in case of an output layer
+            self.layer.computeDerivative(np.array(label - self.layer.outp),
+                                         np.array(1.0))
+
+            # Update weights in the online learning fashion
+            self.layer.updateWeights(self.learning_rate)
+
+    def classify(self, test_instance):
         """Classify a single instance.
 
         Parameters
         ----------
-        testInstance : list of floats
+        test_instance : list of floats
 
         Returns
         -------
@@ -77,12 +126,9 @@ class LogisticRegression(Classifier):
         """
 
         # Here you have to implement classification method given an instance
-	self.logisticlayer.forward(testInstance)
-	#print self.logisticlayer.outp
-	if self.logisticlayer.outp >= 0.5:
-        	return True
-	else:
-		return False
+
+        outp = self.layer.forward(test_instance)
+        return outp > 0.5
 
     def evaluate(self, test=None):
         """Evaluate a whole dataset.
@@ -98,7 +144,14 @@ class LogisticRegression(Classifier):
             List of classified decisions for the dataset's entries.
         """
         if test is None:
-            test = self.testSet.input
+            test = self.test_set.input
         # Once you can classify an instance, just use map for all of the test
         # set.
         return list(map(self.classify, test))
+
+    def __del__(self):
+        # Remove the bias from input data
+        self.training_set.input = np.delete(self.training_set.input, 0, axis=1)
+        self.validation_set.input = np.delete(self.validation_set.input, 0,
+                                              axis=1)
+        self.test_set.input = np.delete(self.test_set.input, 0, axis=1)
