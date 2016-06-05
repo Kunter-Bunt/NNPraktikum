@@ -1,6 +1,6 @@
 
 import numpy as np
-
+from sklearn.metrics import accuracy_score
 # from util.activation_functions import Activation
 from model.logistic_layer import LogisticLayer
 from model.classifier import Classifier
@@ -87,10 +87,11 @@ class MultilayerPerceptron(Classifier):
         # Here you have to propagate forward through the layers
         # And remember the activation values of each layer
         """
+	for layer in self.layers:
+		inp = layer.forward(inp)
+        return inp
 
-        pass
-
-    def _compute_error(self, target):
+    def _compute_error(self, error, target):
         """
         Compute the total error of the network
 
@@ -99,12 +100,19 @@ class MultilayerPerceptron(Classifier):
         ndarray :
             a numpy array (1,nOut) containing the output of the layer
         """
+	
+	for layer in reversed(self.layers):
+		if (layer == self._get_output_layer()):
+			#Achtung falsch!
+			target = layer.computeDerivative(error, target)
         pass
 
     def _update_weights(self):
         """
         Update the weights of the layers by propagating back the error
         """
+	for layer in self.layers:
+		self.layer.updateWeights(self.learning_rate)
         pass
 
     def train(self, verbose=True):
@@ -115,14 +123,45 @@ class MultilayerPerceptron(Classifier):
         verbose : boolean
             Print logging messages with validation accuracy if verbose is True.
         """
+        for epoch in range(self.epochs):
+            if verbose:
+                print("Training epoch {0}/{1}.."
+                      .format(epoch + 1, self.epochs))
 
+            self._train_one_epoch()
+
+            if verbose:
+                accuracy = accuracy_score(self.validation_set.label,
+                                          self.evaluate(self.validation_set))
+                # Record the performance of each epoch for later usages
+                # e.g. plotting, reporting..
+                self.performances.append(accuracy)
+                print("Accuracy on validation: {0:.2f}%"
+                      .format(accuracy * 100))
+                print("-----------------------------")
         pass
 
     def _train_one_epoch(self):
         """
         Train one epoch, seeing all input instances
         """
+        for img, label in zip(self.training_set.input,
+                              self.training_set.label):
 
+            # Use LogisticLayer to do the job
+            # Feed it with inputs
+
+            # Do a forward pass to calculate the output and the error
+            self._feed_forward(img)
+
+            # Compute the derivatives w.r.t to the error
+            # Please note the treatment of nextDerivatives and nextWeights
+            # in case of an output layer
+            self._compute_error(np.array(label - self.layer.outp),
+                                         np.array(1.0))
+
+            # Update weights in the online learning fashion
+            self._update_weights()
         pass
 
     def classify(self, test_instance):
