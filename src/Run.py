@@ -110,9 +110,8 @@ def main():
 
 
     # Draw
-    plot = PerformancePlot("Logistic Regression")
-    plot.draw_performance_epoch(myLRClassifier.performances,
-                                myLRClassifier.epochs)
+    #plot = PerformancePlot("Logistic Regression")
+    #plot.draw_performance_epoch(myLRClassifier.performances,myLRClassifier.epochs)
 
 if __name__ == '__main__':
     main()
