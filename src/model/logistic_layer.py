@@ -113,9 +113,11 @@ class LogisticLayer():
         # In case of the output layer, next_weights is array of 1
         # and next_derivatives - the derivative of the error will be the errors
         # Please see the call of this method in LogisticRegression.
-        self.deltas = (self.outp *
-                       (1 - self.outp) *
-                       np.dot(next_derivatives, next_weights))
+	if self.is_classifier_layer:
+		self.deltas = (next_derivatives - self.outp) * self.outp * \
+				(1 - self.outp)
+        else: self.deltas = (self.activation_derivative(self.outp) * \
+                       		np.dot(next_derivatives, next_weights))
 
         # Or more general: output*(1-output) is the derivatives of sigmoid
         # (sigmoid_prime)
