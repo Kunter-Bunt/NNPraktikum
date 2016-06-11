@@ -65,10 +65,9 @@ class MultilayerPerceptron(Classifier):
         self.layers = []
         #output_activation = "sigmoid"
 	#self.layers.append(LogisticLayer(train.input.shape[1]-1, 10, activation=output_activation,is_classifier_layer=False))
-	self.layers.append(LogisticLayer(train.input.shape[1]-1, 5, activation=output_activation,
-                              		is_classifier_layer=False))
-	self.layers.append(LogisticLayer(4, 10, None, activation=output_activation, is_classifier_layer=False))
-        self.layers.append(LogisticLayer(9, 1, None, activation=output_activation, is_classifier_layer=True))
+	self.layers.append(LogisticLayer(train.input.shape[1]-1, 5))
+	self.layers.append(LogisticLayer(4, 10))
+        self.layers.append(LogisticLayer(9, 1, activation=output_activation, is_classifier_layer=True))
 
     def _get_layer(self, layer_index):
         return self.layers[layer_index]
@@ -83,8 +82,8 @@ class MultilayerPerceptron(Classifier):
 	enclabel = []
 	for i in range(10):
 		if (i == label):
-			enclabel.append(1)
-		else: enclabel.append(0)
+			enclabel.append(1.0)
+		else: enclabel.append(0.0)
 	return enclabel
 	
     def _feed_forward(self, inp):
