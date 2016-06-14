@@ -87,7 +87,7 @@ class LogisticLayer():
         outp = self._fire(inp)
         self.outp = outp
 
-        return outp
+        return self.outp
 
     def computeDerivative(self, next_derivatives, next_weights):
         """
@@ -116,8 +116,11 @@ class LogisticLayer():
 	if self.is_classifier_layer:
 		self.deltas = (next_derivatives - self.outp) * self.outp * \
 				(1 - self.outp)
-        else: self.deltas = (self.activation_derivative(self.outp) * \
-                       		np.dot(next_derivatives, next_weights))
+        else: 
+		 for neuron in range(0, self.n_out):
+			self.deltas = (self.activation_derivative(self.outp) * \
+                       		np.dot(next_derivatives, next_weights[neuron, :]))
+
 
         # Or more general: output*(1-output) is the derivatives of sigmoid
         # (sigmoid_prime)
@@ -154,4 +157,4 @@ class LogisticLayer():
                                         self.inp)
 
     def _fire(self, inp):
-        return Activation.sigmoid(np.dot(np.array(inp), self.weights))
+        return self.activation(np.dot(np.array(inp), self.weights))

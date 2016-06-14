@@ -4,6 +4,7 @@ from sklearn.metrics import accuracy_score
 # from util.activation_functions import Activation
 from model.logistic_layer import LogisticLayer
 from model.classifier import Classifier
+from util.loss_functions import CrossEntropyError
 
 
 class MultilayerPerceptron(Classifier):
@@ -67,7 +68,7 @@ class MultilayerPerceptron(Classifier):
 	#self.layers.append(LogisticLayer(train.input.shape[1]-1, 10, activation=output_activation,is_classifier_layer=False))
 	self.layers.append(LogisticLayer(train.input.shape[1]-1, 5))
 	self.layers.append(LogisticLayer(4, 10))
-        self.layers.append(LogisticLayer(9, 1, activation=output_activation, is_classifier_layer=True))
+        self.layers.append(LogisticLayer(9, 10, activation=output_activation, is_classifier_layer=True))
 
     def _get_layer(self, layer_index):
         return self.layers[layer_index]
@@ -118,6 +119,7 @@ class MultilayerPerceptron(Classifier):
 			layer.computeDerivative(nextderivates, nextweights)
 			nextderivates = layer.deltas
 			nextweights = layer.weights
+	CrossEntropyError().calculate_error(target, self._get_output_layer().outp)
         pass
 
     def _update_weights(self):
@@ -180,7 +182,8 @@ class MultilayerPerceptron(Classifier):
     def classify(self, test_instance):
         # Classify an instance given the model of the classifier
         # You need to implement something here
-        return self._feed_forward(test_instance).argmax()
+	self._feed_forward(test_instance)
+        return self._get_output_layer().outp.argmax()
 
     def evaluate(self, test=None):
         """Evaluate a whole dataset.

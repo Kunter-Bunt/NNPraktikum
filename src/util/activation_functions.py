@@ -51,8 +51,8 @@ class Activation:
 
     @staticmethod
     def softmax(outp):
-       	if total != 0: return np.exp(outp)/sum(np.exp(outp))
-        pass
+       	return exp(outp)/sum(exp(outp))
+        
 
     @staticmethod
     def softmax_prime(outp):
