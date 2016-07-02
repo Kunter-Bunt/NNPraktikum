@@ -183,25 +183,23 @@ class MultilayerPerceptron(Classifier):
         """
         Train one epoch, seeing all input instances
         """
-        for img, label in zip(self.training_set.input,
-                              self.training_set.label):
+        #for img, label in zip(self.training_set.input,
+        #                      self.training_set.label):
 
             # Use LogisticLayer to do the job
             # Feed it with inputs
 
             # Do a forward pass to calculate the output and the error
-            self._feed_forward(img)
+            #self._feed_forward(img)
 
             # Compute the derivatives w.r.t to the error
             # Please note the treatment of nextDerivatives and nextWeights
             # in case of an output layer
-            self._compute_error(np.array(self._encode(label)))
+            #self._compute_error(np.array(self._encode(label)))
 		#np.array(self._encode(label) - self._get_output_layer().outp),
 
 
-        for img, label in zip(self.training_set.input,
-                              self.training_set.label):
-
+        for img, label in zip(self.training_set.input, self.training_set.label):
             target = np.zeros(10)
             target[label] = 1
 
