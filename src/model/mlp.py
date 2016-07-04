@@ -17,7 +17,7 @@ class MultilayerPerceptron(Classifier):
 
     def __init__(self, train, valid, test, layers=None, input_weights=None,
                  output_task='classification', output_activation='softmax',
-                 cost='crossentropy', learning_rate=0.01, epochs=50):
+                 cost='crossentropy', learning_rate=0.01, epochs=50, useDAE=None):
 
         """
         A digit-7 recognizer based on logistic regression algorithm
@@ -55,18 +55,31 @@ class MultilayerPerceptron(Classifier):
         # Record the performance of each epoch for later usages
         # e.g. plotting, reporting..
         self.performances = []
-
         self.layers = layers
         self.input_weights = input_weights
+        #self.input_weights = np.insert(self.input_weights, [0,0], [1,1])
+        self.input_weights = np.insert(input_weights, 0, 1, axis=0)
+        self.daeLayer = None
+
+        if input_weights is None:
+            self.input_weights = self.training_set.input
+
+        else:
+            self.daeLayer = LogisticLayer(self.training_set.input.shape[1],
+                                             self.input_weights.shape[1], self.input_weights,
+                                             activation="tanh",
+                                             is_classifier_layer=False)
+     
 
         # Build up the network from specific layers
         if layers is None:
             self.layers = []
 
+	
             # First hidden layer
             number_of_1st_hidden_layer = 100
 
-            self.layers.append(LogisticLayer(train.input.shape[1],
+            self.layers.append(LogisticLayer(self.input_weights.shape[1],
                                              number_of_1st_hidden_layer, None,
                                              activation="sigmoid",
                                              is_classifier_layer=False))
@@ -109,7 +122,11 @@ class MultilayerPerceptron(Classifier):
 
         # Feed forward layer by layer
         # The output of previous layer is the input of the next layer
-        last_layer_output = inp
+        if self.daeLayer is None:
+            last_layer_output = inp
+        else:
+            last_layer_output = self.daeLayer.forward(inp)
+            last_layer_output = np.insert(last_layer_output, 0, 1, axis=0)
 
         for layer in self.layers:
             last_layer_output = layer.forward(last_layer_output)

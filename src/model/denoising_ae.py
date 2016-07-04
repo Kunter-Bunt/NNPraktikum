@@ -51,7 +51,7 @@ class DenoisingAutoEncoder(AutoEncoder):
 
         self.layers = []
         # First hidden layer
-        number_of_1st_hidden_layer = 100
+        number_of_1st_hidden_layer = 400
 
         self.layers.append(LogisticLayer(train.input.shape[1], number_of_1st_hidden_layer, None, activation="tanh", is_classifier_layer=False))
 
