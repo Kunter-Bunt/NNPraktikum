@@ -49,7 +49,7 @@ def main():
                                            data.validation_set,
                                             data.test_set,
                                             learning_rate=0.05,
-                                           epochs=30)
+                                           epochs=30, input_weights=myDAE._get_weights())
 
     print("\nMulti-layer Perceptron has been training..")
     myMLPClassifier.train()
