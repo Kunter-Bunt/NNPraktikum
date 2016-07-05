@@ -14,9 +14,10 @@ from report.performance_plot import PerformancePlot
 
 def main():
 
+    #data = MNISTSeven("../data/mnist_seven.csv", 3000, 1000, 1000,
+    #                  one_hot=True, target_digit='7')
     data = MNISTSeven("../data/mnist_seven.csv", 3000, 1000, 1000,
-                      one_hot=True, target_digit='7')
-
+                      one_hot=False)
     # NOTE:
     # Comment out the MNISTSeven instantiation above and
     # uncomment the following to work with full MNIST task
@@ -79,7 +80,7 @@ def main():
                                            learning_rate=0.005,
                                            epochs=30)
 
-    print("\nLogistic Regression has been training..")
+    print("\nMLP has been training..")
     myMLPClassifier.train()
     print("Done..")
     # Do the recognizer

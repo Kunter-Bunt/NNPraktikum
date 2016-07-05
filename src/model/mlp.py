@@ -54,21 +54,22 @@ class MultilayerPerceptron(Classifier):
         self.layers = layers
         self.input_weights = input_weights
 
-        # add bias values ("1"s) at the beginning of all data sets
-        self.training_set.input = np.insert(self.training_set.input, 0, 1,
-                                            axis=1)
-        self.validation_set.input = np.insert(self.validation_set.input, 0, 1,
-                                              axis=1)
-        self.test_set.input = np.insert(self.test_set.input, 0, 1, axis=1)
+     
 
         # Build up the network from specific layers
         # Here is an example of a MLP acting like the Logistic Regression
         self.layers = []
         #output_activation = "sigmoid"
 	#self.layers.append(LogisticLayer(train.input.shape[1]-1, 10, activation=output_activation,is_classifier_layer=False))
-	self.layers.append(LogisticLayer(train.input.shape[1]-1, 5))
-	self.layers.append(LogisticLayer(4, 10))
-        self.layers.append(LogisticLayer(9, 10, activation=output_activation, is_classifier_layer=True))
+        self.layers.append(LogisticLayer(train.input.shape[1], 100))
+        self.layers.append(LogisticLayer(100, 10, activation=output_activation, is_classifier_layer=True))
+
+   # add bias values ("1"s) at the beginning of all data sets
+        self.training_set.input = np.insert(self.training_set.input, 0, 1,
+                                            axis=1)
+        self.validation_set.input = np.insert(self.validation_set.input, 0, 1,
+                                              axis=1)
+        self.test_set.input = np.insert(self.test_set.input, 0, 1, axis=1)
 
     def _get_layer(self, layer_index):
         return self.layers[layer_index]
@@ -80,12 +81,12 @@ class MultilayerPerceptron(Classifier):
         return self._get_layer(-1)
 	
     def _encode(self, label):
-	enclabel = []
-	for i in range(10):
-		if (i == label):
-			enclabel.append(1.0)
-		else: enclabel.append(0.0)
-	return enclabel
+	    enclabel = []
+	    for i in range(10):
+		    if (i == label):
+			    enclabel.append(1.0)
+		    else: enclabel.append(0.0)
+	    return enclabel
 	
     def _feed_forward(self, inp):
         """
@@ -99,8 +100,9 @@ class MultilayerPerceptron(Classifier):
         # Here you have to propagate forward through the layers
         # And remember the activation values of each layer
         """
-	for layer in self.layers:
-		inp = layer.forward(inp)
+        for layer in self.layers:
+            inp = layer.forward(inp)
+            inp = np.insert(inp, 0, 1, axis=0)
         return inp
 
     def _compute_error(self, target):
@@ -112,14 +114,15 @@ class MultilayerPerceptron(Classifier):
         ndarray :
             a numpy array (1,nOut) containing the output of the layer
         """
-	self._get_output_layer().computeDerivative(target, None)
-	nextderivates = self._get_output_layer().deltas
-	nextweights = self._get_output_layer().weights
-	for layer in reversed(self.layers[:-2]):
-			layer.computeDerivative(nextderivates, nextweights)
-			nextderivates = layer.deltas
-			nextweights = layer.weights
-	CrossEntropyError().calculate_error(target, self._get_output_layer().outp)
+        output_layer = self._get_output_layer()
+        output_layer.deltas = target - output_layer.outp
+        for i in reversed(range(0, len(self.layers) - 1)):
+            current_layer = self._get_layer(i)
+            next_layer = self._get_layer(i+1)
+            next_weights = np.delete(next_layer.weights, 0, axis=0)
+            next_derivatives = next_layer.deltas
+
+            current_layer.computeDerivative(next_derivatives, next_weights.T)
         pass
 
     def _update_weights(self):
