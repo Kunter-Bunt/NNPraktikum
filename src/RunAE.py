@@ -8,7 +8,8 @@ from model.mlp import MultilayerPerceptron
 
 from report.evaluator import Evaluator
 from report.performance_plot import PerformancePlot
-
+from report.weight_visualization_plot import WeightVisualizationPlot
+import numpy as np
 
 def main():
     # data = MNISTSeven("../data/mnist_seven.csv", 3000, 1000, 1000,
@@ -32,9 +33,9 @@ def main():
                                  data.validation_set,
                                  data.test_set,
                                  learning_rate=0.05,
-                                 epochs=30)
+                                 epochs=10)
 
-    print("\nAutoencoder  has been training..")
+    print("\nAutoencoder has been training..")
     myDAE.train()
     print("Done..")
 
@@ -47,8 +48,8 @@ def main():
     # Correct the code here
     myMLPClassifier = MultilayerPerceptron(data.training_set,
                                            data.validation_set,
-                                            data.test_set,
-                                            learning_rate=0.05,
+                                           data.test_set,
+                                           learning_rate=0.05,
                                            epochs=30, input_weights=myDAE._get_weights())
 
     print("\nMulti-layer Perceptron has been training..")
@@ -79,9 +80,14 @@ def main():
     evaluator.printAccuracy(data.test_set, mlpPred)
 
     # Draw
-    plot = PerformancePlot("DAE + MLP on MNIST task")
-    plot.draw_performance_epoch(myMLPClassifier.performances,
-                                myMLPClassifier.epochs)
+    #plot = PerformancePlot("DAE + MLP on MNIST task")
+    #plot.draw_performance_epoch(myMLPClassifier.performances,
+    #                            myMLPClassifier.epochs)
+
+    #print myDAE._get_weights().shape[1]
+    weights = myDAE._get_weights()
+    wplot = WeightVisualizationPlot(weights)
+    wplot.draw_weights()
 
 if __name__ == '__main__':
     main()
