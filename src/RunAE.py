@@ -85,7 +85,7 @@ def main():
     #                            myMLPClassifier.epochs)
 
     #print myDAE._get_weights().shape[1]
-    weights = myDAE._get_weights()
+    weights = 0.5 * myDAE._get_weights() + 0.5
     wplot = WeightVisualizationPlot(weights)
     wplot.draw_weights()
 
